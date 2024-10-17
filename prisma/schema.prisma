@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type SensordatasSensorData {
+  heartrate Int
+  spo2      Int
+  temp      Float
+}
+
+model doctors {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName      String
+  gender        String
+  hospital      String[]
+  patients      String[]
+  specification String
+  user          String   @db.ObjectId
+}
+
+model hospitals {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  doctors  String[]
+  fullName String
+  patients String[]
+  sensors  String[]
+}
+
+model patients {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  aadhaar     Float    @unique(map: "aadhaar_1")
+  admitted    Boolean
+  age         Int
+  doctors     String[]
+  fullName    String
+  gender      String
+  hospital_id String
+  sensor_id   String
+}
+
+model sensordatas {
+  id         String                @id @default(auto()) @map("_id") @db.ObjectId
+  v          Int                   @map("__v")
+  sensorData SensordatasSensorData
+  sensorID   String
+  timestamp  DateTime              @db.Date
+
+  @@index([sensorID, timestamp], map: "sensorID_1_timestamp_1")
+}
+
+model sensors {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+model users {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  avatar   String
+  email    String   @unique(map: "email_1")
+  fullName String
+  isAdmin  Boolean?
+  username String   @unique(map: "username_1")
+}
