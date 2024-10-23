@@ -1,15 +1,23 @@
 import { ApolloServer } from "@apollo/server";
+import { User } from "./user";
 
 const createServer = () => {
   const server = new ApolloServer({
     typeDefs: `
-      type Query {
-        hello: String
-      }
+    ${User.typedefs}
+    type Query {
+      ${User.queries}
+    }
+    type Mutation {
+      ${User.mutations}
+    }
     `,
     resolvers: {
       Query: {
-        hello: () => "Hello, world!",
+        ...User.resolvers.queries,
+      },
+      Mutation: {
+        ...User.resolvers.mutations,
       },
     },
   });

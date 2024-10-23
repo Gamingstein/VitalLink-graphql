@@ -8,20 +8,27 @@
     "dev": "tsc-watch --onSuccess \"npm start\""
   },
   "keywords": [],
-  "author": "",
+  "author": "Gamingstein",
+  "private": true,
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.5",
-    "prisma": "^5.21.0",
+    "prisma": "^5.21.1",
     "ts-node": "^10.9.2",
     "tsc-watch": "^6.2.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
-    "@prisma/client": "^5.21.0",
+    "@prisma/client": "^5.21.1",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "graphql": "^16.9.0",
     "jsonwebtoken": "^9.0.2"

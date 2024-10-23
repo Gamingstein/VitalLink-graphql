@@ -7,61 +7,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-type SensordatasSensorData {
-  heartrate Int
-  spo2      Int
-  temp      Float
+type Payload {
+  bpm         Int
+  oxygen      Float
+  temperature Float
 }
 
-model doctors {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  fullName      String
-  gender        String
-  hospital      String[]
-  patients      String[]
-  specification String
-  user          String   @db.ObjectId
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
-model hospitals {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  doctors  String[]
-  fullName String
-  patients String[]
-  sensors  String[]
+enum Specification {
+  GENERAL
+  CARDIOLOGIST
+  DERMATOLOGIST
+  GYNECOLOGIST
+  NEUROLOGIST
+  ORTHOPEDIC
+  PEDIATRICIAN
+  PSYCHIATRIST
+  SURGEON
+  UROLOGIST
 }
 
-model patients {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  aadhaar     Float    @unique(map: "aadhaar_1")
-  admitted    Boolean
-  age         Int
-  doctors     String[]
-  fullName    String
-  gender      String
-  hospital_id String
-  sensor_id   String
+model Doctor {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  gender        Gender        @default(OTHER)
+  specification Specification @default(GENERAL)
+  userID        String        @unique @db.ObjectId
+  user          User?         @relation(fields: [userID], references: [id])
+  hospitalIDs   String[]      @default([]) @db.ObjectId
+  hospital      Hospital[]    @relation(fields: [hospitalIDs], references: [id])
+  patientIDs    String[]      @default([]) @db.ObjectId
+  patient       Patient[]     @relation(fields: [patientIDs], references: [id])
+
+  @@map("doctors")
 }
 
-model sensordatas {
-  id         String                @id @default(auto()) @map("_id") @db.ObjectId
-  v          Int                   @map("__v")
-  sensorData SensordatasSensorData
-  sensorID   String
-  timestamp  DateTime              @db.Date
+model Hospital {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userID    String    @unique @db.ObjectId
+  user      User?     @relation(fields: [userID], references: [id])
+  doctorIDs String[]  @default([]) @db.ObjectId
+  doctors   Doctor[]  @relation(fields: [doctorIDs], references: [id])
+  sensors   Sensor[]
+  Patient   Patient[]
+
+  @@map("hospitals")
+}
+
+model Patient {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  gender     Gender
+  aadhaar    Float     @unique
+  admitted   Boolean
+  age        Int
+  doctorIDs  String[]  @default([]) @db.ObjectId
+  doctors    Doctor[]  @relation(fields: [doctorIDs], references: [id])
+  hospitalID String    @db.ObjectId
+  hospital   Hospital? @relation(fields: [hospitalID], references: [id])
+  sensorID   String    @unique @db.ObjectId
+  sensor     Sensor?   @relation(fields: [sensorID], references: [id])
+
+  @@map("patients")
+}
+
+model SensorData {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  data      Payload
+  timestamp DateTime @db.Date
+  sensorID  String   @db.ObjectId
+  sensor    Sensor?  @relation(fields: [sensorID], references: [id])
 
   @@index([sensorID, timestamp], map: "sensorID_1_timestamp_1")
+  @@map("sensordatas")
 }
 
-model sensors {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+model Sensor {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  hospitalID String       @db.ObjectId
+  hospital   Hospital     @relation(fields: [hospitalID], references: [id])
+  Patient    Patient?
+  SensorData SensorData[]
+
+  @@map("sensors")
 }
 
-model users {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  avatar   String
-  email    String   @unique(map: "email_1")
-  fullName String
-  isAdmin  Boolean?
-  username String   @unique(map: "username_1")
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  username     String    @unique
+  email        String    @unique
+  password     String
+  name         String
+  avatar       String
+  isAdmin      Boolean   @default(false)
+  refreshToken String?
+  doctor       Doctor?
+  hospital     Hospital?
+
+  @@map("users")
 }
