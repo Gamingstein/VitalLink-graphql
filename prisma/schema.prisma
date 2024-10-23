@@ -39,9 +39,9 @@ model Doctor {
   userID        String        @unique @db.ObjectId
   user          User?         @relation(fields: [userID], references: [id])
   hospitalIDs   String[]      @default([]) @db.ObjectId
-  hospital      Hospital[]    @relation(fields: [hospitalIDs], references: [id])
+  hospitals     Hospital[]    @relation(fields: [hospitalIDs], references: [id])
   patientIDs    String[]      @default([]) @db.ObjectId
-  patient       Patient[]     @relation(fields: [patientIDs], references: [id])
+  patients      Patient[]     @relation(fields: [patientIDs], references: [id])
 
   @@map("doctors")
 }
@@ -53,7 +53,7 @@ model Hospital {
   doctorIDs String[]  @default([]) @db.ObjectId
   doctors   Doctor[]  @relation(fields: [doctorIDs], references: [id])
   sensors   Sensor[]
-  Patient   Patient[]
+  patients  Patient[]
 
   @@map("hospitals")
 }
@@ -90,8 +90,8 @@ model Sensor {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
   hospitalID String       @db.ObjectId
   hospital   Hospital     @relation(fields: [hospitalID], references: [id])
-  Patient    Patient?
-  SensorData SensorData[]
+  patient    Patient?
+  sensorData SensorData[]
 
   @@map("sensors")
 }

@@ -16,12 +16,18 @@ export const authMiddleware = asyncResolver(
         process.env.ACCESS_TOKEN_SECRET as string,
       );
       const { _id } = decodedToken as { _id: string };
-      const user = await prisma.users.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           id: _id,
         },
         select: {
+          id: true,
+          email: true,
+          username: true,
+          name: true,
+          isAdmin: true,
           password: false,
+          refreshToken: false,
         },
       });
       if (!user) {

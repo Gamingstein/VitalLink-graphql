@@ -1,24 +1,19 @@
 import { ApolloServer } from "@apollo/server";
-import { User } from "./user";
+import { config } from "./config";
 
 const createServer = () => {
   const server = new ApolloServer({
     typeDefs: `
-    ${User.typedefs}
+    ${config.typedefs}
     type Query {
-      ${User.queries}
-    }
-    type Mutation {
-      ${User.mutations}
+      ${config.queries}
     }
     `,
     resolvers: {
       Query: {
-        ...User.resolvers.queries,
+        ...config.resolvers.queries,
       },
-      Mutation: {
-        ...User.resolvers.mutations,
-      },
+      ...config.resolvers.nestedQueries,
     },
   });
   return server;

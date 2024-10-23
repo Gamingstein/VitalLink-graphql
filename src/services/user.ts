@@ -7,6 +7,7 @@ import {
   uploadOnCloudinary,
 } from "../utils";
 import bcrypt from "bcryptjs";
+import { Gender, Specification } from "@prisma/client";
 
 export const OPTIONS = {
   httpOnly: true,
@@ -18,7 +19,7 @@ export interface CreatedUser {
   email: string;
   password: string;
   name: string;
-  isAdmin: boolean;
+  isAdmin: string;
   avatar: string;
   gender: string;
   specification: string;
@@ -60,31 +61,148 @@ class UserService {
   }
 
   public static getAllUsers() {
-    return prisma.users.findMany();
+    return prisma.user.findMany({
+      include: {
+        doctor: true,
+        hospital: true,
+      },
+    });
   }
 
   public static getUserById({ id }: { id: string }) {
-    return prisma.users.findUnique({ where: { id } });
+    return prisma.user.findUnique({
+      where: { id },
+      include: { doctor: true, hospital: true },
+    });
   }
 
-  public static getUsersWhere({ where }: { where: any }) {
-    return prisma.users.findMany({ where });
-  }
+  public static registerUser = asyncResolver(async (req, res) => {
+    const { username, email, name, isAdmin, password, gender, specification } =
+      req.body as CreatedUser;
 
-  public static async createUser(payload: CreatedUser) {
-    const { username, email, name, isAdmin, password } = payload;
-
-    const user = await prisma.users.create({
-      data: {
-        name,
-        email,
-        username,
-        isAdmin,
-        password,
+    const userExists = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email,
+          },
+          {
+            username,
+          },
+        ],
       },
     });
-    return null;
-  }
+    if (userExists) {
+      throw new APIError(400, "User already exists");
+    }
+    const avatar =
+      (await uploadOnCloudinary((req.files as any)?.avatar[0]?.path as string))
+        ?.url || "";
+    const hashedPassword = await UserService.hashPassword(password);
+    const user =
+      isAdmin === "false"
+        ? await prisma.user.create({
+            data: {
+              name,
+              email,
+              username,
+              isAdmin: false,
+              password: hashedPassword,
+              avatar,
+              doctor: {
+                create: {
+                  gender: gender.toUpperCase() as Gender,
+                  specification: specification.toUpperCase() as Specification,
+                },
+              },
+            },
+          })
+        : await prisma.user.create({
+            data: {
+              name,
+              email,
+              username,
+              isAdmin: true,
+              password: hashedPassword,
+              avatar,
+              hospital: {
+                create: {},
+              },
+            },
+          });
+    if (!user) {
+      throw new APIError(500, "Error creating user");
+    }
+
+    return res.status(201).json(
+      new APIResponse(201, "User registered successfully", {
+        email: user.email,
+        username: user.username,
+        isAdmin: user.isAdmin,
+      }),
+    );
+  });
+
+  public static loginUser = asyncResolver(async (req, res) => {
+    const { email, password } = req.body as any;
+    const user = await prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      throw new APIError(404, "User not found");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new APIError(401, "Invalid credentials");
+    }
+    const { accessToken, refreshToken } =
+      UserService.generateAccessAndRefreshTokens(user);
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, OPTIONS)
+      .cookie("refreshToken", refreshToken, OPTIONS)
+      .json(
+        new APIResponse(200, "User logged in successfully", {
+          name: user.name,
+          email: user.email,
+          username: user.username,
+          isAdmin: user.isAdmin,
+          avatar: user.avatar,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        }),
+      );
+  });
+
+  public static logoutUser = asyncResolver(async (req, res) => {
+    res.clearCookie("accessToken", OPTIONS);
+    res.clearCookie("refreshToken", OPTIONS);
+    return res
+      .status(200)
+      .json(new APIResponse(200, "User logged out successfully"));
+  });
+
+  public static currentUser = asyncResolver(async (req, res) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: (req as any).user.id,
+      },
+    });
+    if (!user) {
+      throw new APIError(404, "User not found");
+    }
+    return res.status(200).json(
+      new APIResponse(200, "User found", {
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        isAdmin: user.isAdmin,
+        avatar: user.avatar,
+      }),
+    );
+  });
 }
 
 export default UserService;
