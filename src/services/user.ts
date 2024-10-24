@@ -72,7 +72,18 @@ class UserService {
   public static getUserById({ id }: { id: string }) {
     return prisma.user.findUnique({
       where: { id },
-      include: { doctor: true, hospital: true },
+      include: {
+        doctor: {
+          include: {
+            patients: true,
+          },
+        },
+        hospital: {
+          include: {
+            patients: true,
+          },
+        },
+      },
     });
   }
 

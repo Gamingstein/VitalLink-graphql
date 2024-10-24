@@ -45,7 +45,6 @@ export const authMiddleware = asyncResolver(
     }
   },
 );
-
 export const doctorAuthMiddleware = asyncResolver(
   async (req: Request, _: Response, next: NextFunction) => {
     try {
@@ -76,6 +75,7 @@ export const doctorAuthMiddleware = asyncResolver(
           username: true,
           name: true,
           isAdmin: true,
+          doctor: true,
           password: false,
           refreshToken: false,
         },
@@ -120,6 +120,7 @@ export const hospitalAuthMiddleware = asyncResolver(
           username: true,
           name: true,
           isAdmin: true,
+          hospital: true,
           password: false,
           refreshToken: false,
         },

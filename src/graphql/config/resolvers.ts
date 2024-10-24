@@ -25,6 +25,21 @@ const queries = {
   patient: async (_: any, args: any) => {
     return await services.patient.getPatientById(args);
   },
+  sensorsbyhospital: async (_: any, args: any) => {
+    return await services.hospital.getHospitalSensors(args);
+  },
+  patientsbyhospital: async (_: any, args: any) => {
+    return await services.hospital.getHospitalPatients(args);
+  },
+  doctorsbyhospital: async (_: any, args: any) => {
+    return await services.hospital.getHospitalDoctors(args);
+  },
+  patientsbydoctor: async (_: any, args: any) => {
+    return await services.doctor.getDoctorPatients(args);
+  },
+  hospitalsbydoctor: async (_: any, args: any) => {
+    return await services.doctor.getDoctorHospitals(args);
+  },
 };
 
 const nestedQueries = {

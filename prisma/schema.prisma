@@ -88,6 +88,7 @@ model SensorData {
 
 model Sensor {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  macAddress String       @unique
   hospitalID String       @db.ObjectId
   hospital   Hospital     @relation(fields: [hospitalID], references: [id])
   patient    Patient?

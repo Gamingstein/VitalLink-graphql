@@ -7,4 +7,9 @@ export const queries = `#graphql
   hospital(id: ID!): Hospital
   patients: [Patient]
   patient(id: ID!): Patient
+  sensorsbyhospital(id: ID!): [Sensor]
+  patientsbyhospital(id: ID!): [Patient]
+  doctorsbyhospital(id: ID!): [Doctor]
+  patientsbydoctor(id: ID!): [Patient]
+  hospitalsbydoctor(id: ID!): [Hospital]
 `;

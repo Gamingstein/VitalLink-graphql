@@ -15,6 +15,7 @@ router.post(
   services.user.registerUser,
 );
 
+router.all("/", (_, res) => res.send("User route"));
 router.post("/login", services.user.loginUser);
 router.post("/logout", authMiddleware, services.user.logoutUser);
 router.get("/me", authMiddleware, services.user.currentUser);
