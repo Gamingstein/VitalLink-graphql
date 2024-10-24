@@ -63,7 +63,7 @@ model Patient {
   name       String
   gender     Gender
   aadhaar    Float     @unique
-  admitted   Boolean
+  admitted   Boolean   @default(true)
   age        Int
   doctorIDs  String[]  @default([]) @db.ObjectId
   doctors    Doctor[]  @relation(fields: [doctorIDs], references: [id])

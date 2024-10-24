@@ -1,4 +1,8 @@
-import { authMiddleware } from "./auth.middleware";
+import {
+  authMiddleware,
+  doctorAuthMiddleware,
+  hospitalAuthMiddleware,
+} from "./auth.middleware";
 import { upload } from "./multer.middleware";
 
-export { authMiddleware, upload };
+export { authMiddleware, hospitalAuthMiddleware, doctorAuthMiddleware, upload };

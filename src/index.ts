@@ -1,8 +1,10 @@
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 import { expressMiddleware } from "@apollo/server/express4";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
 import createServer from "./graphql";
+import { DoctorRouter, HospitalRouter, UserRouter } from "./routes";
+import { doctorAuthMiddleware, hospitalAuthMiddleware } from "./middlewares";
 
 const app = express();
 app.use(
@@ -23,9 +25,10 @@ const server = createServer();
   app.use("/graphql", expressMiddleware(server));
 })();
 
-import UserRouter from "./routes/user.routes";
 app.use("/user", UserRouter);
+app.use("/hospital", hospitalAuthMiddleware, HospitalRouter);
+app.use("/doctor", doctorAuthMiddleware, DoctorRouter);
 
-app.listen(8000, () => {
-  console.log("Server is running on http://localhost:8000/graphql");
+app.listen(process.env.PORT || 8000, () => {
+  console.log("Server is running on http://localhost:8000/");
 });

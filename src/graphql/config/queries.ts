@@ -7,6 +7,4 @@ export const queries = `#graphql
   hospital(id: ID!): Hospital
   patients: [Patient]
   patient(id: ID!): Patient
-  sensors: [Sensor]
-  sensor(id: ID!): Sensor
 `;

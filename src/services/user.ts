@@ -29,14 +29,14 @@ class UserService {
   private static generateAccessAndRefreshTokens(user: any) {
     try {
       const accessToken = jwt.sign(
-        { _id: user.id, email: user.email },
+        { id: user.id, email: user.email, isAdmin: user.isAdmin },
         process.env.ACCESS_TOKEN_SECRET as string,
         {
           expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
         },
       );
       const refreshToken = jwt.sign(
-        { _id: user.id },
+        { id: user.id },
         process.env.REFRESH_TOKEN_SECRET as string,
         {
           expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
@@ -159,6 +159,15 @@ class UserService {
     }
     const { accessToken, refreshToken } =
       UserService.generateAccessAndRefreshTokens(user);
+
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        refreshToken,
+      },
+    });
     return res
       .status(200)
       .cookie("accessToken", accessToken, OPTIONS)
@@ -177,10 +186,18 @@ class UserService {
   });
 
   public static logoutUser = asyncResolver(async (req, res) => {
-    res.clearCookie("accessToken", OPTIONS);
-    res.clearCookie("refreshToken", OPTIONS);
+    await prisma.user.update({
+      where: {
+        id: (req as any).user.id,
+      },
+      data: {
+        refreshToken: null,
+      },
+    });
     return res
       .status(200)
+      .clearCookie("accessToken", OPTIONS)
+      .clearCookie("refreshToken", OPTIONS)
       .json(new APIResponse(200, "User logged out successfully"));
   });
 
