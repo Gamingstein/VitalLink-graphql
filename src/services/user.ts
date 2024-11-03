@@ -217,19 +217,37 @@ class UserService {
       where: {
         id: (req as any).user.id,
       },
+      include: {
+        doctor: true,
+        hospital: true,
+      },
     });
     if (!user) {
       throw new APIError(404, "User not found");
     }
-    return res.status(200).json(
-      new APIResponse(200, "User found", {
-        name: user.name,
-        email: user.email,
-        username: user.username,
-        isAdmin: user.isAdmin,
-        avatar: user.avatar,
-      }),
-    );
+    if (user.isAdmin) {
+      return res.status(200).json(
+        new APIResponse(200, "User found", {
+          name: user.name,
+          email: user.email,
+          username: user.username,
+          isAdmin: user.isAdmin,
+          avatar: user.avatar,
+          hospital: user.hospital,
+        }),
+      );
+    } else {
+      return res.status(200).json(
+        new APIResponse(200, "User found", {
+          name: user.name,
+          email: user.email,
+          username: user.username,
+          isAdmin: user.isAdmin,
+          avatar: user.avatar,
+          doctor: user.doctor,
+        }),
+      );
+    }
   });
 }
 
