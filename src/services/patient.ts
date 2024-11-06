@@ -10,15 +10,28 @@ class PatientService {
         id,
       },
       include: {
-        sensor: {
+        hospital: {
           include: {
-            sensorData: true,
+            user: true,
           },
         },
-        hospital: true,
-        doctors: true,
+        doctors: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
   }
 }
 export default PatientService;
+
+// include: {
+//   sensor: {
+//     include: {
+//       sensorData: true,
+//     },
+//   },
+//   hospital: true,
+//   doctors: true,
+// },

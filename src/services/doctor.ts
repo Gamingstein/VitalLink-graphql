@@ -47,6 +47,9 @@ class DoctorService {
           has: id,
         },
       },
+      include: {
+        user: true,
+      },
     });
   }
   public static addPatient = asyncResolver(async (req, res) => {

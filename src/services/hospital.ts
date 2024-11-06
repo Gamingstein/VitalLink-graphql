@@ -48,6 +48,9 @@ class HospitalService {
           has: id,
         },
       },
+      include: {
+        user: true,
+      },
     });
   }
   public static async getHospitalSensors({ id }: { id: string }) {
