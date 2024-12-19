@@ -234,6 +234,7 @@ class UserService {
           isAdmin: user.isAdmin,
           avatar: user.avatar,
           hospital: user.hospital,
+          doctor: { id: null },
         }),
       );
     } else {
@@ -245,6 +246,7 @@ class UserService {
           isAdmin: user.isAdmin,
           avatar: user.avatar,
           doctor: user.doctor,
+          hospital: { id: null },
         }),
       );
     }

@@ -43,5 +43,6 @@ export const typedefs = `#graphql
     id: ID!
     hospital: Hospital
     patient: Patient
+    macAddress: String!
   }
 `;

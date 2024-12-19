@@ -53,17 +53,20 @@ class DoctorService {
     });
   }
   public static addPatient = asyncResolver(async (req, res) => {
-    const { patientID } = req.body as any;
+    const { aadhaar, hospitalID } = req.body as any;
     const doctorID = (req as any).user.doctor.id as string;
 
     const doctor = await prisma.doctor.update({
       where: {
         id: doctorID,
+        hospitalIDs: {
+          has: hospitalID,
+        },
       },
       data: {
         patients: {
           connect: {
-            id: patientID,
+            aadhaar,
           },
         },
       },

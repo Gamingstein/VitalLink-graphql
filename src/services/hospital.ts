@@ -57,15 +57,42 @@ class HospitalService {
     return prisma.sensor.findMany({
       where: {
         hospitalID: id,
+        patient: null,
       },
       select: {
         id: true,
+        macAddress: true,
       },
     });
   }
   public static createPatient = asyncResolver(async (req, res) => {
     const { name, gender, age, aadhaar, sensorID } = req.body as any;
     const hospitalID = (req as any).user.hospital.id;
+    const prevPatient = await prisma.patient.update({
+      where: {
+        aadhaar,
+        admitted: false,
+      },
+      data: {
+        admitted: true,
+        sensor: {
+          connect: {
+            id: sensorID,
+          },
+        },
+      },
+    });
+    if (prevPatient) {
+      return res
+        .status(201)
+        .json(
+          new APIResponse(
+            201,
+            "Patient already exists, readmitted",
+            prevPatient,
+          ),
+        );
+    }
     const patient = await prisma.patient.create({
       data: {
         name,
@@ -77,9 +104,17 @@ class HospitalService {
         admitted: true,
       },
     });
-    return res
-      .status(201)
-      .json(new APIResponse(201, "Patient created", patient));
+    if (patient) {
+      return res
+        .status(201)
+        .json(new APIResponse(201, "Patient created", patient));
+    } else {
+      return res
+        .status(400)
+        .json(
+          new APIResponse(400, "Patient already created and admitted", patient),
+        );
+    }
   });
   public static dischargePatient = asyncResolver(async (req, res) => {
     const { patientID } = req.body as any;
