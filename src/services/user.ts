@@ -106,9 +106,15 @@ class UserService {
     if (userExists) {
       throw new APIError(400, "User already exists");
     }
+    // const avatar =
+    //   (await uploadOnCloudinary((req.files as any)?.avatar[0]?.path as string))
+    //     ?.url || "";
     const avatar =
-      (await uploadOnCloudinary((req.files as any)?.avatar[0]?.path as string))
-        ?.url || "";
+      (
+        await uploadOnCloudinary(
+          (req.files as any)?.avatar?.tempFilePath as string,
+        )
+      )?.url || "";
     const hashedPassword = await UserService.hashPassword(password);
     const user =
       isAdmin === "false"
