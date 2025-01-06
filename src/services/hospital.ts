@@ -1,7 +1,6 @@
 import { Gender } from "@prisma/client";
 import { prisma } from "../lib/db";
 import { APIResponse, asyncResolver } from "../utils";
-// import { parse } from "graphql";
 
 class HospitalService {
   public static async getAllHospitals() {
@@ -18,6 +17,7 @@ class HospitalService {
       },
     });
   }
+
   public static async getHospitalById({ id }: { id: string }) {
     return prisma.hospital.findUnique({
       where: {
@@ -35,6 +35,7 @@ class HospitalService {
       },
     });
   }
+
   public static async getHospitalPatients({ id }: { id: string }) {
     return prisma.patient.findMany({
       where: {
@@ -49,6 +50,7 @@ class HospitalService {
       },
     });
   }
+
   public static async getHospitalDoctors({ id }: { id: string }) {
     return prisma.doctor.findMany({
       where: {
@@ -61,6 +63,7 @@ class HospitalService {
       },
     });
   }
+
   public static async getHospitalSensors({ id }: { id: string }) {
     return prisma.sensor.findMany({
       where: {
@@ -73,9 +76,11 @@ class HospitalService {
       },
     });
   }
+
   public static createPatient = asyncResolver(async (req, res) => {
     const { name, gender, age, aadhaar, sensorID } = req.body as any;
     const hospitalID = (req as any).user.hospital.id;
+
     const patient = await prisma.patient.upsert({
       where: {
         aadhaar: parseInt(aadhaar),
@@ -107,28 +112,7 @@ class HospitalService {
         },
       },
     });
-    // if (prevPatient) {
-    //   return res
-    //     .status(201)
-    //     .json(
-    //       new APIResponse(
-    //         201,
-    //         "Patient already exists, readmitted",
-    //         prevPatient,
-    //       ),
-    //     );
-    // }
-    // const patient = await prisma.patient.create({
-    //   data: {
-    //     name,
-    //     age,
-    //     gender: gender.toUpperCase() as Gender,
-    //     aadhaar: parseInt(aadhaar),
-    //     hospitalID,
-    //     sensorID,
-    //     admitted: true,
-    //   },
-    // });
+
     if (patient) {
       return res
         .status(201)
@@ -141,6 +125,7 @@ class HospitalService {
         );
     }
   });
+
   public static dischargePatient = asyncResolver(async (req, res) => {
     const { patientID } = req.body as { patientID: string };
     const patient = await prisma.patient.update({

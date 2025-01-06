@@ -25,13 +25,3 @@ class PatientService {
   }
 }
 export default PatientService;
-
-// include: {
-//   sensor: {
-//     include: {
-//       sensorData: true,
-//     },
-//   },
-//   hospital: true,
-//   doctors: true,
-// },
