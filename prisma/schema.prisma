@@ -37,7 +37,7 @@ model Doctor {
   gender        Gender        @default(OTHER)
   specification Specification @default(GENERAL)
   userID        String        @unique @db.ObjectId
-  user          User?         @relation(fields: [userID], references: [id])
+  user          User          @relation(fields: [userID], references: [id], onDelete: Cascade, onUpdate: Cascade)
   hospitalIDs   String[]      @default([]) @db.ObjectId
   hospitals     Hospital[]    @relation(fields: [hospitalIDs], references: [id])
   patientIDs    String[]      @default([]) @db.ObjectId
@@ -49,7 +49,7 @@ model Doctor {
 model Hospital {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   userID    String    @unique @db.ObjectId
-  user      User?     @relation(fields: [userID], references: [id])
+  user      User      @relation(fields: [userID], references: [id], onDelete: Cascade, onUpdate: Cascade)
   doctorIDs String[]  @default([]) @db.ObjectId
   doctors   Doctor[]  @relation(fields: [doctorIDs], references: [id])
   sensors   Sensor[]
@@ -59,18 +59,18 @@ model Hospital {
 }
 
 model Patient {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   gender     Gender
-  aadhaar    Float     @unique
-  admitted   Boolean   @default(true)
+  aadhaar    Float    @unique
+  admitted   Boolean  @default(true)
   age        Int
-  doctorIDs  String[]  @default([]) @db.ObjectId
-  doctors    Doctor[]  @relation(fields: [doctorIDs], references: [id])
-  hospitalID String    @db.ObjectId
-  hospital   Hospital? @relation(fields: [hospitalID], references: [id])
-  sensorID   String    @unique @db.ObjectId
-  sensor     Sensor?   @relation(fields: [sensorID], references: [id])
+  doctorIDs  String[] @default([]) @db.ObjectId
+  doctors    Doctor[] @relation(fields: [doctorIDs], references: [id])
+  hospitalID String   @db.ObjectId
+  hospital   Hospital @relation(fields: [hospitalID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sensorID   String   @unique @db.ObjectId
+  sensor     Sensor   @relation(fields: [sensorID], references: [id])
 
   @@map("patients")
 }
@@ -80,7 +80,7 @@ model SensorData {
   data      Payload
   timestamp DateTime @db.Date
   sensorID  String   @db.ObjectId
-  sensor    Sensor?  @relation(fields: [sensorID], references: [id])
+  sensor    Sensor   @relation(fields: [sensorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([sensorID, timestamp], map: "sensorID_1_timestamp_1")
   @@map("sensordatas")
@@ -90,7 +90,7 @@ model Sensor {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
   macAddress String       @unique
   hospitalID String       @db.ObjectId
-  hospital   Hospital     @relation(fields: [hospitalID], references: [id])
+  hospital   Hospital     @relation(fields: [hospitalID], references: [id], onDelete: Cascade, onUpdate: Cascade)
   patient    Patient?
   sensorData SensorData[]
 
